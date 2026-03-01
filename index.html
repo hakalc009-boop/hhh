@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ريسبكت | التقديم على السيرفر</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple: #6B21A8;
+    --purple-mid: #7E22CE;
+    --purple-light: #9333EA;
+    --purple-bright: #A855F7;
+    --purple-glow: rgba(107,33,168,0.5);
+    --dark: #0a0010;
+    --darker: #07000d;
+    --card: rgba(255,255,255,0.04);
+    --card2: rgba(107,33,168,0.07);
+    --border: rgba(255,255,255,0.07);
+    --border-purple: rgba(147,51,234,0.3);
+    --text: #ffffff;
+    --text-muted: rgba(255,255,255,0.6);
+    --text-dim: rgba(255,255,255,0.3);
+    --danger: #ef4444;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--darker); color: var(--text); font-family: 'Tajawal', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+  /* NAVBAR */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; height: 65px;
+    background: rgba(7,0,13,0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.1rem;
+    box-shadow: 0 0 20px var(--purple-glow); cursor: pointer; flex-shrink: 0;
+  }
+  .nav-links { display: flex; gap: 28px; list-style: none; align-items: center; }
+  .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.92rem; font-weight: 500; transition: color 0.2s; cursor: pointer; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-links a.active { color: var(--purple-bright); }
+  .nav-logout {
+    padding: 7px 16px; background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.3); border-radius: 6px;
+    color: #fca5a5 !important; font-size: 0.85rem !important; cursor: pointer;
+  }
+  .nav-logout:hover { background: rgba(239,68,68,0.3) !important; }
+
+  /* PAGES */
+  .page { display: none; min-height: 100vh; animation: fadeIn 0.5s ease forwards; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* HERO */
+  .hero {
+    position: relative; height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, #0d0020 0%, #07000d 100%);
+    z-index: 0;
+  }
+  .hero-bg::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(107,33,168,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse at 20% 70%, rgba(88,28,135,0.15) 0%, transparent 40%),
+      radial-gradient(ellipse at 80% 60%, rgba(126,34,206,0.1) 0%, transparent 40%);
+  }
+  .hero-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(147,51,234,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(147,51,234,0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+  .hero-orb {
+    position: absolute; top: 10%; left: 50%; transform: translateX(-50%);
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(107,33,168,0.2) 0%, transparent 70%);
+    border-radius: 50%; animation: orbPulse 4s ease-in-out infinite; z-index: 1; pointer-events: none;
+  }
+  @keyframes orbPulse { 0%,100% { transform: translateX(-50%) scale(1); opacity:0.7; } 50% { transform: translateX(-50%) scale(1.2); opacity:1; } }
+  .streak {
+    position: absolute; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(168,85,247,0.5), transparent);
+    animation: streakAnim linear infinite; z-index: 1; pointer-events: none;
+  }
+  @keyframes streakAnim { from{transform:translateX(110vw);opacity:0;} 5%{opacity:1;} 95%{opacity:1;} to{transform:translateX(-10vw);opacity:0;} }
+  .ground-glow { position: absolute; bottom: 0; left: 0; right: 0; height: 200px; background: linear-gradient(to top, rgba(107,33,168,0.15), transparent); z-index: 1; pointer-events: none; }
+  .hero-content { position: relative; z-index: 2; padding: 0 20px; max-width: 750px; }
+  .hero-title { font-size: clamp(2.5rem, 7vw, 5rem); font-weight: 900; line-height: 1.1; margin-bottom: 20px; text-shadow: 0 0 60px rgba(107,33,168,0.6); }
+  .hero-title span { color: var(--purple-bright); }
+  .hero-desc { font-size: clamp(0.88rem, 2vw, 1.05rem); color: var(--text-muted); line-height: 1.85; margin-bottom: 40px; max-width: 580px; margin-left: auto; margin-right: auto; }
+  .hero-btn {
+    display: inline-flex; align-items: center; gap: 10px; padding: 14px 38px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: white; border: none; border-radius: 8px;
+    font-family: 'Tajawal', sans-serif; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 30px var(--purple-glow);
+  }
+  .hero-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 40px rgba(107,33,168,0.7); }
+  .hero-btn svg { width: 22px; height: 22px; }
+
+  .section-purple { background: linear-gradient(180deg, #07000d 0%, #0d0020 100%); padding: 70px 40px; text-align: center; }
+  .section-title { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  .section-sub { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 45px; }
+  .stream-cards { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .stream-card { width: 280px; height: 160px; background: var(--card2); border: 1px solid var(--border-purple); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-dim); font-size: 0.88rem; }
+
+  /* PAGE HEADER */
+  .page-header {
+    background: linear-gradient(180deg, #150025 0%, #0d001a 100%);
+    padding: 100px 40px 50px; text-align: center; position: relative; overflow: hidden;
+    border-bottom: 1px solid var(--border-purple);
+  }
+  .page-header::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(107,33,168,0.3) 0%, transparent 60%); }
+  .page-header-bg-text {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 10rem; font-weight: 900; color: rgba(107,33,168,0.06);
+    pointer-events: none; white-space: nowrap; font-family: 'Rajdhani', sans-serif;
+  }
+  .page-header h1 { position: relative; z-index: 1; font-size: 2.2rem; font-weight: 900; margin-bottom: 15px; text-shadow: 0 0 40px rgba(107,33,168,0.5); }
+  .breadcrumb { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-dim); font-size: 0.85rem; }
+  .breadcrumb span { color: var(--purple-bright); }
+
+  /* WELCOME */
+  .welcome-page-inner { min-height: calc(100vh - 65px); display: flex; align-items: center; justify-content: center; padding: 100px 20px 40px; background: linear-gradient(180deg, #0d0020 0%, #07000d 100%); }
+  .welcome-card { max-width: 580px; width: 100%; text-align: center; }
+  .user-av { width: 82px; height: 82px; border-radius: 50%; border: 3px solid var(--purple-light); margin: 0 auto 14px; display: block; box-shadow: 0 0 30px var(--purple-glow); }
+  .welcome-name { font-size: 1.6rem; font-weight: 700; margin-bottom: 5px; }
+  .welcome-tag { color: var(--purple-bright); font-size: 0.88rem; margin-bottom: 35px; }
+  .welcome-info { background: var(--card2); border: 1px solid var(--border-purple); border-radius: 14px; padding: 28px 30px; text-align: right; color: var(--text-muted); line-height: 2; font-size: 0.95rem; margin-bottom: 28px; }
+  .welcome-info strong { color: white; }
+
+  /* INSTRUCTIONS */
+  .instructions-wrap { max-width: 720px; margin: 0 auto; padding: 50px 20px 80px; }
+  .instr-card { background: var(--card2); border: 1px solid var(--border-purple); border-radius: 16px; padding: 35px 40px; position: relative; overflow: hidden; }
+  .instr-card::before { content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%; background: linear-gradient(180deg, var(--purple), var(--purple-bright)); border-radius: 0 16px 16px 0; }
+  .instr-header { font-size: 1rem; font-weight: 700; color: var(--text-muted); margin-bottom: 25px; display: flex; align-items: center; gap: 8px; }
+  .instr-section { margin-bottom: 28px; }
+  .instr-section-title { color: var(--purple-bright); font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .instr-section-desc { color: var(--text-muted); font-size: 0.85rem; line-height: 1.7; margin-bottom: 10px; padding-right: 4px; }
+  .instr-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .instr-list li { display: flex; align-items: flex-start; gap: 10px; color: var(--text-muted); font-size: 0.85rem; line-height: 1.6; }
+  .instr-list li::before { content: '•'; color: var(--purple-bright); flex-shrink: 0; margin-top: 2px; }
+  .instr-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border-purple), transparent); margin: 22px 0; }
+  .instr-notice { background: rgba(107,33,168,0.1); border: 1px solid rgba(147,51,234,0.25); border-radius: 8px; padding: 12px 16px; font-size: 0.83rem; color: var(--text-muted); margin-bottom: 22px; line-height: 1.7; }
+  .instr-notice strong { color: var(--purple-bright); }
+  .instr-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+  /* BUTTONS */
+  .btn-reject { padding: 10px 22px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.35); border-radius: 8px; color: #fca5a5; font-family: 'Tajawal', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-reject:hover { background: rgba(239,68,68,0.3); }
+  .btn-accept { padding: 10px 24px; background: linear-gradient(135deg, var(--purple), var(--purple-light)); border: none; border-radius: 8px; color: white; font-family: 'Tajawal', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 3px 20px var(--purple-glow); }
+  .btn-accept:hover { transform: translateY(-2px); box-shadow: 0 6px 30px var(--purple-glow); }
+
+  /* FORM */
+  .form-wrap { max-width: 760px; margin: 0 auto; padding: 50px 20px 80px; }
+  .part-label { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; margin-top: 40px; }
+  .part-label:first-of-type { margin-top: 0; }
+  .part-badge { padding: 5px 14px; background: linear-gradient(135deg, var(--purple), var(--purple-light)); border-radius: 20px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.05em; white-space: nowrap; }
+  .part-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border-purple), transparent); }
+  .part-title { font-size: 1.05rem; font-weight: 700; color: var(--text-muted); white-space: nowrap; }
+  .prog-wrap { margin-bottom: 40px; }
+  .prog-bar { height: 5px; background: rgba(255,255,255,0.06); border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+  .prog-fill { height: 100%; background: linear-gradient(90deg, var(--purple), var(--purple-bright)); border-radius: 5px; transition: width 0.4s ease; box-shadow: 0 0 10px var(--purple-glow); }
+  .prog-info { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-dim); }
+  .prog-info span:last-child { color: var(--purple-bright); }
+  .q-group { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 28px 30px; margin-bottom: 16px; transition: border-color 0.2s; }
+  .q-group:focus-within { border-color: var(--border-purple); background: rgba(107,33,168,0.05); }
+  .q-num { font-size: 0.72rem; color: var(--purple-bright); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 7px; }
+  .q-label { font-size: 1rem; font-weight: 600; margin-bottom: 5px; line-height: 1.6; }
+  .q-hint { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 15px; line-height: 1.5; }
+  .q-hint a { color: var(--purple-bright); text-decoration: underline; cursor: pointer; }
+  .f-input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; color: white; font-family: 'Tajawal', sans-serif; font-size: 0.95rem; padding: 12px 15px; outline: none; transition: all 0.25s; resize: vertical; direction: rtl; }
+  .f-input:focus { border-color: var(--purple-light); background: rgba(107,33,168,0.08); box-shadow: 0 0 0 3px rgba(107,33,168,0.15); }
+  .f-input::placeholder { color: var(--text-dim); }
+  input[type="date"].f-input { color-scheme: dark; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .f-err { font-size: 0.76rem; color: var(--danger); margin-top: 5px; display: none; }
+  .has-err .f-input { border-color: var(--danger) !important; }
+  .has-err .f-err { display: block; }
+  .submit-area { margin-top: 40px; display: flex; justify-content: flex-end; gap: 14px; }
+  .btn-back { padding: 12px 28px; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-family: 'Tajawal', sans-serif; font-size: 0.92rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .btn-back:hover { border-color: var(--purple-light); color: white; }
+  .btn-submit { padding: 13px 35px; background: linear-gradient(135deg, var(--purple), var(--purple-light)); border: none; border-radius: 8px; color: white; font-family: 'Tajawal', sans-serif; font-size: 0.98rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 25px var(--purple-glow); }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 7px 35px var(--purple-glow); }
+
+  /* SUCCESS */
+  .success-page-inner { min-height: calc(100vh - 65px); display: flex; align-items: center; justify-content: center; padding: 100px 20px 40px; }
+  .success-box { text-align: center; max-width: 520px; padding: 50px 40px; background: var(--card2); border: 1px solid var(--border-purple); border-radius: 20px; }
+  .success-ring { width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), var(--purple-light)); display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; font-size: 2.2rem; box-shadow: 0 0 50px var(--purple-glow); animation: pop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
+  @keyframes pop { 0%{transform:scale(0);opacity:0;} 100%{transform:scale(1);opacity:1;} }
+  .success-box h2 { font-size: 1.9rem; font-weight: 900; margin-bottom: 12px; }
+  .success-bar { width: 70px; height: 3px; background: linear-gradient(90deg, var(--purple), var(--purple-bright)); border-radius: 3px; margin: 18px auto; }
+  .success-box p { color: var(--text-muted); line-height: 2; font-size: 0.95rem; }
+  .btn-back-home { display: inline-block; margin-top: 28px; padding: 10px 28px; border: 1px solid var(--border-purple); border-radius: 8px; color: var(--purple-bright); font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; font-family: 'Tajawal', sans-serif; }
+  .btn-back-home:hover { background: rgba(107,33,168,0.2); }
+
+  /* LOADING */
+  .loading-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 18px; backdrop-filter: blur(12px); }
+  .loading-ov.active { display: flex; }
+  .spinner { width: 46px; height: 46px; border: 3px solid rgba(255,255,255,0.07); border-top-color: var(--purple-bright); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-ov p { color: var(--text-dim); font-size: 0.88rem; letter-spacing: 0.1em; }
+
+  /* CONFIG */
+  .cfg-btn { position: fixed; bottom: 20px; left: 20px; z-index: 300; background: rgba(107,33,168,0.2); border: 1px solid rgba(147,51,234,0.35); border-radius: 8px; color: var(--text-muted); font-family: 'Tajawal', sans-serif; font-size: 0.74rem; padding: 7px 13px; cursor: pointer; transition: all 0.2s; }
+  .cfg-btn:hover { background: var(--purple); color: white; }
+  .cfg-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 500; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
+  .cfg-modal.active { display: flex; }
+  .cfg-box { background: #100018; border: 1px solid var(--border-purple); border-radius: 16px; padding: 35px; max-width: 480px; width: 90%; }
+  .cfg-box h3 { font-size: 1.1rem; color: var(--purple-bright); margin-bottom: 22px; }
+  .cfg-box label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 6px; }
+  .cfg-box input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; color: white; padding: 10px 13px; font-size: 0.82rem; font-family: monospace; outline: none; margin-bottom: 16px; direction: ltr; }
+  .cfg-box input:focus { border-color: var(--purple-light); }
+  .cfg-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+  .nav-dropdown { position: relative; }
+  .nav-drop-menu {
+    display: none; position: absolute; top: calc(100% + 10px); right: 0;
+    background: rgba(10,0,20,0.97); border: 1px solid var(--border-purple);
+    border-radius: 10px; min-width: 190px; overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5); backdrop-filter: blur(16px);
+    animation: fadeIn 0.2s ease;
+  }
+  .nav-drop-menu.open { display: block; }
+  .nav-drop-menu a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 18px; color: var(--text-muted) !important;
+    font-size: 0.88rem !important; font-weight: 600;
+    text-decoration: none; transition: background 0.2s, color 0.2s;
+    cursor: pointer; border-bottom: 1px solid var(--border);
+  }
+  .nav-drop-menu a:last-child { border-bottom: none; }
+  .nav-drop-menu a:hover { background: rgba(107,33,168,0.2); color: white !important; }
+
+  footer { background: var(--darker); border-top: 1px solid var(--border); padding: 22px 40px; text-align: center; color: var(--text-dim); font-size: 0.8rem; }
+  footer span { color: var(--purple-bright); }
+
+  /* ============================
+     CREATORS PAGE
+  ============================*/
+  .creators-section {
+    background: linear-gradient(180deg, #07000d 0%, #0d0020 100%);
+    padding: 60px 40px 80px;
+  }
+  .creators-section-title {
+    text-align: center; font-size: 1.9rem; font-weight: 900; margin-bottom: 40px;
+  }
+  .creators-grid {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    justify-content: center; max-width: 900px;
+    margin: 0 auto;
+  }
+  .creator-card {
+    width: 150px; background: rgba(107,33,168,0.07);
+    border: 1px solid rgba(147,51,234,0.2); border-radius: 16px;
+    padding: 24px 16px 18px; display: flex; flex-direction: column;
+    align-items: center; gap: 12px; cursor: default;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .creator-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: linear-gradient(135deg, #1a0030, #2d0050);
+    border: 2px solid rgba(147,51,234,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 800; color: rgba(255,255,255,0.15);
+    font-family: 'Rajdhani', sans-serif; letter-spacing: 0.05em;
+    overflow: hidden;
+  }
+  .creator-name {
+    font-size: 0.82rem; font-weight: 700; color: var(--text-muted);
+    text-align: center;
+  }
+  .coming-soon-badge {
+    text-align: center; color: var(--text-dim);
+    font-size: 0.75rem; margin-top: -8px; margin-bottom: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  /* ============================
+     JOBS PAGE
+  ============================*/
+  .jobs-section {
+    background: linear-gradient(180deg, #07000d 0%, #0d0020 100%);
+    padding: 60px 40px 80px;
+  }
+  .jobs-section-title {
+    text-align: center; font-size: 1.9rem; font-weight: 900; margin-bottom: 10px;
+  }
+  .jobs-section-sub {
+    text-align: center; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 12px; line-height: 1.8;
+  }
+  .jobs-cards {
+    display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 45px;
+    max-width: 1000px; margin-left: auto; margin-right: auto;
+  }
+  .job-card {
+    width: 290px; background: rgba(107,33,168,0.07);
+    border: 1px solid rgba(147,51,234,0.25); border-radius: 16px;
+    padding: 28px 24px; display: flex; flex-direction: column; gap: 12px;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .job-card:hover { border-color: rgba(147,51,234,0.5); transform: translateY(-4px); }
+  .job-card-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; box-shadow: 0 0 20px var(--purple-glow);
+    margin-right: auto;
+  }
+  .job-card-title { font-size: 1.05rem; font-weight: 800; }
+  .job-card-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.75; flex: 1; }
+  .btn-closed {
+    width: 100%; padding: 11px; background: rgba(239,68,68,0.18);
+    border: 1px solid rgba(239,68,68,0.4); border-radius: 8px;
+    color: #fca5a5; font-family: 'Tajawal', sans-serif; font-size: 0.9rem;
+    font-weight: 700; cursor: pointer; transition: background 0.2s;
+    margin-top: 6px;
+  }
+  .btn-closed:hover { background: rgba(239,68,68,0.28); }
+
+  /* Closed modal */
+  .closed-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 500; align-items: center; justify-content: center; backdrop-filter: blur(12px); }
+  .closed-modal.active { display: flex; }
+  .closed-box {
+    background: #100018; border: 1px solid rgba(239,68,68,0.35);
+    border-radius: 16px; padding: 40px 35px; max-width: 420px; width: 90%;
+    text-align: center;
+  }
+  .closed-icon { font-size: 2.8rem; margin-bottom: 16px; }
+  .closed-box h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 10px; color: #fca5a5; }
+  .closed-box p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.8; margin-bottom: 24px; }
+  .btn-close-modal {
+    padding: 10px 30px; background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.35); border-radius: 8px;
+    color: #fca5a5; font-family: 'Tajawal', sans-serif;
+    font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-close-modal:hover { background: rgba(239,68,68,0.3); }
+
+  /* ============================
+     LAWS PAGE
+  ============================*/
+  .laws-wrap {
+    max-width: 860px; margin: 0 auto; padding: 50px 20px 80px;
+  }
+  .laws-subtitle {
+    text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 40px;
+  }
+  .law-item {
+    background: rgba(107,33,168,0.06);
+    border: 1px solid rgba(147,51,234,0.2);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .law-item.open {
+    border-color: rgba(147,51,234,0.5);
+  }
+  .law-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .law-header:hover { background: rgba(107,33,168,0.1); }
+  .law-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .law-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple), var(--purple-bright));
+    flex-shrink: 0;
+    box-shadow: 0 0 8px var(--purple-glow);
+  }
+  .law-title {
+    font-size: 0.97rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .law-badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    background: rgba(147,51,234,0.15);
+    border: 1px solid rgba(147,51,234,0.3);
+    border-radius: 20px;
+    color: var(--purple-bright);
+    font-weight: 600;
+  }
+  .law-toggle {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: rgba(107,33,168,0.15);
+    border: 1px solid rgba(147,51,234,0.25);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--purple-bright);
+    font-size: 1.2rem;
+    transition: all 0.3s;
+    flex-shrink: 0;
+  }
+  .law-item.open .law-toggle {
+    background: rgba(107,33,168,0.4);
+    transform: rotate(45deg);
+  }
+  .law-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s;
+  }
+  .law-item.open .law-body {
+    max-height: 1000px;
+  }
+  .law-body-inner {
+    padding: 0 22px 22px;
+    border-top: 1px solid rgba(147,51,234,0.15);
+  }
+  .law-body-inner ul {
+    list-style: none;
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .law-body-inner ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+  .law-body-inner ul li::before {
+    content: '◈';
+    color: var(--purple-bright);
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 0.7rem;
+  }
+  .law-body-inner p.law-desc {
+    margin-top: 14px;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    line-height: 1.8;
+  }
+  .law-warn {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 14px;
+    padding: 8px 14px;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 7px;
+    font-size: 0.78rem;
+    color: #fca5a5;
+  }
+
+  @media(max-width:640px) {
+    nav { padding: 0 16px; }
+    .nav-links { gap: 14px; }
+    .nav-links a { font-size: 0.78rem; }
+    .instr-card { padding: 24px 20px; }
+    .q-group { padding: 22px 18px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .submit-area { flex-direction: column; }
+    .btn-back, .btn-submit { width: 100%; text-align: center; }
+    .page-header { padding: 90px 20px 40px; }
+    .page-header-bg-text { font-size: 4rem; }
+    .law-title { font-size: 0.88rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <ul class="nav-links">
+    <li><a onclick="goHome()">الرئيسية</a></li>
+    <li><a onclick="showCreators()" id="navCreators">صناع المحتوى</a></li>
+    <li><a onclick="showLaws()" id="navLaws">القوانين</a></li>
+    <li><a onclick="showJobs()" id="navJobs">تقديم الوظائف</a></li>
+    <li><a href="#">المتجر</a></li>
+    <li class="nav-dropdown" id="navServersWrap">
+      <a onclick="toggleServersMenu()" id="navServers" style="display:flex;align-items:center;gap:5px;">السيرفرات ▾</a>
+      <div class="nav-drop-menu" id="serversMenu">
+        <a onclick="openDiscord()">
+          <svg width="16" height="16" viewBox="0 0 71 55" fill="currentColor" style="flex-shrink:0"><path d="M60.1 4.9A58.5 58.5 0 0 0 45.5.4a.2.2 0 0 0-.2.1 40.8 40.8 0 0 0-1.8 3.7 54 54 0 0 0-16.2 0A37.6 37.6 0 0 0 25.4.5a.2.2 0 0 0-.2-.1A58.3 58.3 0 0 0 10.6 4.9a.2.2 0 0 0-.1.1C1.6 17.7-.9 30.2.3 42.5c0 .1.1.1.1.2a58.8 58.8 0 0 0 17.7 9 .2.2 0 0 0 .2-.1 42 42 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4c.4-.3.7-.5 1.1-.8a.2.2 0 0 1 .2 0c11.5 5.3 24 5.3 35.4 0a.2.2 0 0 1 .2 0c.4.3.7.5 1.1.8a.2.2 0 0 1 0 .4 36.1 36.1 0 0 1-5.5 2.6.2.2 0 0 0-.1.3 47.1 47.1 0 0 0 3.6 5.9.2.2 0 0 0 .2.1 58.6 58.6 0 0 0 17.8-9 .2.2 0 0 0 .1-.2c1.5-14.4-2.4-26.9-10.2-38a.2.2 0 0 0-.1-.1zM23.7 35c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 4-2.9 7.2-6.4 7.2zm23.7 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 4-2.8 7.2-6.4 7.2z"/></svg>
+          سيرفرنا ديسكورد
+        </a>
+      </div>
+    </li>
+    <li><a class="nav-logout" id="logoutBtn" style="display:none" onclick="logout()">تسجيل خروج</a></li>
+  </ul>
+  <div class="nav-logo" onclick="goHome()">R</div>
+</nav>
+
+<div class="loading-ov" id="loadingOv">
+  <div class="spinner"></div>
+  <p>جارٍ إرسال طلبك...</p>
+</div>
+
+<!-- PAGE 1: LANDING -->
+<div class="page active" id="page-landing">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-orb"></div>
+    <div class="ground-glow"></div>
+    <div class="streak" style="width:180px;top:52%;animation-duration:5s;animation-delay:0s;"></div>
+    <div class="streak" style="width:120px;top:56%;animation-duration:7s;animation-delay:2.5s;opacity:0.6;"></div>
+    <div class="streak" style="width:250px;top:60%;animation-duration:4.5s;animation-delay:1s;"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">ريسبكت | <span>Respect</span></h1>
+      <p class="hero-desc">حياكم الله في سيرفر ريسبكت المتخصص في الرول بلاي نحاول تقديم أفضل تجربة للرول بلاي في الشرق الأوسط انضم إلينا الآن وعيش حياتك كما تريد</p>
+      <button class="hero-btn" onclick="loginWithDiscord()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 71 55" fill="currentColor"><path d="M60.1 4.9A58.5 58.5 0 0 0 45.5.4a.2.2 0 0 0-.2.1 40.8 40.8 0 0 0-1.8 3.7 54 54 0 0 0-16.2 0A37.6 37.6 0 0 0 25.4.5a.2.2 0 0 0-.2-.1A58.3 58.3 0 0 0 10.6 4.9a.2.2 0 0 0-.1.1C1.6 17.7-.9 30.2.3 42.5c0 .1.1.1.1.2a58.8 58.8 0 0 0 17.7 9 .2.2 0 0 0 .2-.1 42 42 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4c.4-.3.7-.5 1.1-.8a.2.2 0 0 1 .2 0c11.5 5.3 24 5.3 35.4 0a.2.2 0 0 1 .2 0c.4.3.7.5 1.1.8a.2.2 0 0 1 0 .4 36.1 36.1 0 0 1-5.5 2.6.2.2 0 0 0-.1.3 47.1 47.1 0 0 0 3.6 5.9.2.2 0 0 0 .2.1 58.6 58.6 0 0 0 17.8-9 .2.2 0 0 0 .1-.2c1.5-14.4-2.4-26.9-10.2-38a.2.2 0 0 0-.1-.1zM23.7 35c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 4-2.9 7.2-6.4 7.2zm23.7 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 4-2.8 7.2-6.4 7.2z"/></svg>
+        تسجيل الدخول
+      </button>
+    </div>
+  </div>
+  <div class="section-purple">
+    <h2 class="section-title">شاهد أفضل البثوث</h2>
+    <p class="section-sub">تابع أفضل البثوث المباشرة لأحداث مميزة في مختلف المجالات.</p>
+    <div class="stream-cards">
+      <div class="stream-card">🎮 قريباً</div>
+      <div class="stream-card">🎮 قريباً</div>
+      <div class="stream-card">🎮 قريباً</div>
+    </div>
+  </div>
+  <footer>حقوق الطبع والنشر © 2025 <span>Respect CPW</span>. جميع الحقوق محفوظة.</footer>
+</div>
+
+<!-- PAGE 2: WELCOME -->
+<div class="page" id="page-welcome">
+  <div class="welcome-page-inner">
+    <div class="welcome-card">
+      <img class="user-av" id="userAv" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="">
+      <h2 class="welcome-name" id="userNameWelcome">مرحباً</h2>
+      <p class="welcome-tag">✅ تم تسجيل الدخول بنجاح</p>
+      <div class="welcome-info">
+        <strong>مرحباً بك في بوابة التقديم على ريسبكت 🎮</strong><br>
+        نسعى لتقديم أفضل تجربة رول بلاي في المنطقة العربية.<br>
+        للانضمام إلى السيرفر، يجب عليك تعبئة نموذج التقديم بعناية.<br>
+        سيتم مراجعة طلبك من قِبل الإدارة والرد عليك عبر Discord.
+      </div>
+      <button class="btn-accept" style="padding:14px 45px;font-size:1rem;" onclick="showInstructions()">🎯 قدّم الآن</button>
+    </div>
+  </div>
+  <footer>حقوق الطبع والنشر © 2025 <span>Respect CPW</span>. جميع الحقوق محفوظة.</footer>
+</div>
+
+<!-- PAGE 3: INSTRUCTIONS -->
+<div class="page" id="page-instructions">
+  <div class="page-header">
+    <div class="page-header-bg-text">RESPECT</div>
+    <h1>التقديم على ريسبكت</h1>
+    <div class="breadcrumb">
+      <span onclick="goHome()" style="cursor:pointer;color:var(--text-muted);">الرئيسية</span>
+      <span>›</span>
+      <span>التقديم على ريسبكت</span>
+    </div>
+  </div>
+  <div class="instructions-wrap">
+    <div class="instr-card">
+      <p class="instr-header">📋 تعليمات ما قبل الاختبار الإلكتروني</p>
+      <div class="instr-section">
+        <p class="instr-section-title">🎬 فيديو شرح طريقة الاختبار</p>
+        <p class="instr-section-desc" style="color:var(--purple-bright);text-decoration:underline;cursor:pointer;">اضغط هنا لمشاهدة الفيديو التعريفي</p>
+      </div>
+      <div class="instr-divider"></div>
+      <div class="instr-section">
+        <p class="instr-section-title">🚀 خطوات مهمة قبل بدء الاختبار</p>
+        <ul class="instr-list">
+          <li>يجب عليك تجهيز قصة متكاملة للشخصية (الكاركر) مع أهداف واضحة.</li>
+          <li>يجب قراءة القوانين بدقة قبل بدء الاختبار.</li>
+          <li>تذكر: خطوة واحدة خاطئة قد تُبعدك عن القبول في السيرفر.</li>
+        </ul>
+      </div>
+      <div class="instr-divider"></div>
+      <div class="instr-section">
+        <p class="instr-section-title">⚠️ تعليمات إلزامية</p>
+        <ul class="instr-list">
+          <li>يمنع دخول الاختبار عبر الجوال.</li>
+          <li>يجب أن تكون جودة إجاباتك ممتازة.</li>
+          <li>مراجعة القوانين بشكل كامل إلزامية.</li>
+          <li>العمر المسموح: 18 سنة فما فوق.</li>
+          <li>الخروج من الديسكورد بهدف استخراج الترتيب يتسبب بعقوبتك.</li>
+          <li>الطلبات يتم مراجعتها من قبل الإدارة.</li>
+          <li>في حال الغش في الاختبار يتم محاسبتك حسب القوانين والأنظمة.</li>
+        </ul>
+      </div>
+      <div class="instr-divider"></div>
+      <div class="instr-section">
+        <p class="instr-section-title">🎭 كيف تكتب قصتك الشخصية (الكاركتر)؟</p>
+        <p class="instr-section-desc">الغرض من القصة هو إعطاء تفاصيل الشخصية وذاكرتها وذاتيتها وتبيان أحداث داخل الرول بلاي.</p>
+        <ul class="instr-list">
+          <li>البداية: تعريف الشخصية — الاسم الكامل، تاريخ الميلاد، المنشئ، اللغة.</li>
+          <li>حادثة طفولة: مثلاً تعرضت الشخصية في طفولتها لحادث أثّر في مسارها.</li>
+          <li>الاهتمامات والطموحات: ما الذي تسعى إليه الشخصية.</li>
+          <li>الوظيفة والتسلسل: أدخل القصة وأعطها تناسقاً وعمقاً.</li>
+          <li>التعليم والعائلة والوضع الاجتماعي.</li>
+          <li>النقاط الإيجابية والسلبية للشخصية.</li>
+        </ul>
+      </div>
+      <div class="instr-divider"></div>
+      <div class="instr-notice">
+        <strong>⚠️ يجب أن تُجيب أسئلة الاختبار الإلكتروني بناءً على تفاصيل القصة المذكورة أعلاه.</strong><br>
+        🌟 في حال التزمت بجميع الخطوات المذكورة فإن نسبة قبولك ستكون عالية.
+      </div>
+      <div class="instr-actions">
+        <button class="btn-reject" onclick="goHome()">✕ رفض</button>
+        <button class="btn-accept" onclick="showForm()">✓ أوافق على الشروط</button>
+      </div>
+    </div>
+  </div>
+  <footer>حقوق الطبع والنشر © 2025 <span>Respect CPW</span>. جميع الحقوق محفوظة.</footer>
+</div>
+
+<!-- PAGE 4: FORM -->
+<div class="page" id="page-form">
+  <div class="page-header">
+    <div class="page-header-bg-text">APPLY</div>
+    <h1>نموذج التقديم</h1>
+    <div class="breadcrumb">
+      <span onclick="goHome()" style="cursor:pointer;color:var(--text-muted);">الرئيسية</span>
+      <span>›</span>
+      <span onclick="showInstructions()" style="cursor:pointer;color:var(--text-muted);">التقديم</span>
+      <span>›</span>
+      <span>الأسئلة</span>
+    </div>
+  </div>
+  <div class="form-wrap">
+    <div class="prog-wrap">
+      <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+      <div class="prog-info"><span id="progText">لم تكتمل الأسئلة بعد</span><span id="progPct">0%</span></div>
+    </div>
+    <div class="part-label">
+      <div class="part-badge">الجزء الأول</div>
+      <div class="part-line"></div>
+      <span class="part-title">الأسئلة العامة وأسئلة الشخصية</span>
+    </div>
+    <div class="q-group" id="qg1">
+      <p class="q-num">السؤال 01</p>
+      <p class="q-label">شرفنا باسمك وعمرك الحقيقيين؟ <span style="color:var(--danger)">*</span></p>
+      <div class="grid2">
+        <div id="wrap-rname"><input class="f-input" type="text" id="rName" placeholder="الاسم الحقيقي"/><p class="f-err">مطلوب</p></div>
+        <div id="wrap-rage"><input class="f-input" type="number" id="rAge" placeholder="العمر (18+)" min="18" max="99"/><p class="f-err">يجب أن يكون العمر 18 أو أكثر</p></div>
+      </div>
+    </div>
+    <div class="q-group" id="qg2">
+      <p class="q-num">السؤال 02</p>
+      <p class="q-label">اسم الشخصية الأول والأخير وتاريخ ميلادها والمنشئ واللغة الخاصة بالشخصية؟ <span style="color:var(--danger)">*</span></p>
+      <div style="display:grid;gap:10px;">
+        <div class="grid2">
+          <div id="wrap-cname"><input class="f-input" type="text" id="cName" placeholder="اسم الشخصية الأول والأخير"/><p class="f-err">مطلوب</p></div>
+          <div id="wrap-cbirth"><input class="f-input" type="date" id="cBirth"/><p class="f-err">مطلوب</p></div>
+        </div>
+        <div class="grid2">
+          <div id="wrap-corigin"><input class="f-input" type="text" id="cOrigin" placeholder="البلد / المنشئ"/><p class="f-err">مطلوب</p></div>
+          <div id="wrap-clang"><input class="f-input" type="text" id="cLang" placeholder="اللغة الخاصة بالشخصية"/><p class="f-err">مطلوب</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="q-group" id="qg3">
+      <p class="q-num">السؤال 03</p>
+      <p class="q-label">ما هي قصة الشخصية؟ (لا تقل عن 5 أسطر ولا تزيد عن 10 أسطر) <span style="color:var(--danger)">*</span></p>
+      <p class="q-hint">يوجد <a>تعريف لكيفية الكتابة في الديسكورد</a> يرجى مراجعته قبل كتابة القصة.</p>
+      <div id="wrap-cstory">
+        <textarea class="f-input" id="cStory" rows="7" placeholder="اكتب هنا قصة شخصيتك بالتفصيل (من أين جاءت، طفولتها، أهدافها...)"></textarea>
+        <p class="f-err">يجب كتابة القصة بما لا يقل عن 5 أسطر</p>
+      </div>
+    </div>
+    <div class="q-group" id="qg4">
+      <p class="q-num">السؤال 04</p>
+      <p class="q-label">ما هي إيجابيات وسلبيات الشخصية من القصة؟ <span style="color:var(--danger)">*</span></p>
+      <div style="display:grid;gap:10px;">
+        <div id="wrap-cpos"><textarea class="f-input" id="cPos" rows="3" placeholder="الإيجابيات: مثلاً — مخلص، شجاع، يساعد الآخرين..."></textarea><p class="f-err">مطلوب</p></div>
+        <div id="wrap-cneg"><textarea class="f-input" id="cNeg" rows="3" placeholder="السلبيات: مثلاً — متسرع، لا يثق بأحد، عنيد..."></textarea><p class="f-err">مطلوب</p></div>
+      </div>
+    </div>
+    <div class="q-group" id="qg5">
+      <p class="q-num">السؤال 05</p>
+      <p class="q-label">هل لديك خبرة سابقة في تقمص الشخصيات؟ اكتب عنها بالتفصيل <span style="color:var(--danger)">*</span></p>
+      <div id="wrap-cexp"><textarea class="f-input" id="cExp" rows="4" placeholder="اكتب عن خبرتك في الرول بلاي، السيرفرات التي لعبت بها، المدة الزمنية..."></textarea><p class="f-err">مطلوب</p></div>
+    </div>
+    <div class="q-group" id="qg6">
+      <p class="q-num">السؤال 06</p>
+      <p class="q-label">ما هو سبب رغبتك في دخول المدينة؟ <span style="color:var(--danger)">*</span></p>
+      <div id="wrap-creason"><textarea class="f-input" id="cReason" rows="3" placeholder="اشرح سبب رغبة شخصيتك في الانتقال إلى هذه المدينة..."></textarea><p class="f-err">مطلوب</p></div>
+    </div>
+    <div class="part-label">
+      <div class="part-badge">الجزء الثاني</div>
+      <div class="part-line"></div>
+      <span class="part-title">كيف ستتصرف شخصيتك؟</span>
+    </div>
+    <div class="q-group" style="background:rgba(107,33,168,0.06);border-color:rgba(147,51,234,0.2);margin-bottom:20px;">
+      <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.8;">يرجى ربط تصرفاتك بالمواقف التالية <strong>بشخصيتك</strong>، علماً أن عدم مطابقة تصرفات شخصيتك للبيانات المذكورة في الجزء الأول يقلل فرص قبولك.</p>
+    </div>
+    <div class="q-group" id="qg7">
+      <p class="q-num">السؤال 07</p>
+      <p class="q-label">أنت الآن تحمل سلاحاً نارياً توجهت لتبحث عن رهينة لتقوم بسطو مسلح على أحد المتاجر. اكتشفت أن الشخص الذي اختطفته شخص ذو سلطة إجرامية في المدينة. ماذا ستفعل في هذا الموقف؟ <span style="color:var(--danger)">*</span></p>
+      <div id="wrap-sc1"><textarea class="f-input" id="sc1" rows="5" placeholder="اكتب تصرف شخصيتك في هذا الموقف بالتفصيل..."></textarea><p class="f-err">مطلوب (20 حرف على الأقل)</p></div>
+    </div>
+    <div class="q-group" id="qg8">
+      <p class="q-num">السؤال 08</p>
+      <p class="q-label">يوم عادي بنفس الروتين اليومي لك كسائق تاكسي، وفي إحدى الليالي الباردة وأنت تعمل بوظيفتك اتصل بك شخص لكي تساعده بنقله. وعندما وصلت رأيته يحتجز شخصاً كرهينة. يبدو أنه مجرم متقلب المزاج. ماذا ستفعل؟ مع ذكر السبب. <span style="color:var(--danger)">*</span></p>
+      <div id="wrap-sc2"><textarea class="f-input" id="sc2" rows="5" placeholder="اكتب تصرف شخصيتك في هذا الموقف مع ذكر السبب..."></textarea><p class="f-err">مطلوب (20 حرف على الأقل)</p></div>
+    </div>
+    <div class="q-group" id="qg9">
+      <p class="q-num">السؤال 09</p>
+      <p class="q-label">لقد تورطت في الجريمة مع مجموعة من الأشخاص، حيث يمنحك الضابط تخفيضاً للمحكومية إذا قدمت معلومات عن أعضاء مجموعتك. ماذا ستفعل وكيف سترد مع توضيح السبب؟ <span style="color:var(--danger)">*</span></p>
+      <div id="wrap-sc3"><textarea class="f-input" id="sc3" rows="5" placeholder="اكتب قرار شخصيتك وسبب هذا القرار..."></textarea><p class="f-err">مطلوب (20 حرف على الأقل)</p></div>
+    </div>
+    <div class="q-group" id="qg10">
+      <p class="q-num">السؤال 10</p>
+      <p class="q-label">عليك أمر قبض في إحدى القضايا ولديك خياران: إما الاستمرار في الهروب أو تسليم نفسك، وأنت تعلم أنك بريء ولكنك المشتبه الأول في القضية. ماذا ستفعل في هذه الحالة وكيف ستثبت أنك بريء؟ <span style="color:var(--danger)">*</span></p>
+      <div id="wrap-sc4"><textarea class="f-input" id="sc4" rows="5" placeholder="اشرح قرار شخصيتك وكيفية إثبات البراءة..."></textarea><p class="f-err">مطلوب (20 حرف على الأقل)</p></div>
+    </div>
+    <div class="submit-area">
+      <button class="btn-back" onclick="showInstructions()">◄ رجوع</button>
+      <button class="btn-submit" onclick="submitApp()">🚀 إرسال الطلب</button>
+    </div>
+  </div>
+  <footer>حقوق الطبع والنشر © 2025 <span>Respect CPW</span>. جميع الحقوق محفوظة.</footer>
+</div>
+
+<!-- PAGE 5: SUCCESS -->
+<div class="page" id="page-success">
+  <div class="success-page-inner">
+    <div class="success-box">
+      <div class="success-ring">✓</div>
+      <h2>تم الإرسال بنجاح!</h2>
+      <div class="success-bar"></div>
+      <p>تم إرسال طلب انضمامك إلى إدارة سيرفر ريسبكت.<br>سيتم مراجعة طلبك في أقرب وقت ممكن.<br>ترقّب الرسائل الخاصة على Discord الخاص بك.</p>
+      <button class="btn-back-home" onclick="goHome()">← العودة للرئيسية</button>
+    </div>
+  </div>
+  <footer>حقوق الطبع والنشر © 2025 <span>Respect CPW</span>. جميع الحقوق محفوظة.</footer>
+</div>
+
+<!-- PAGE: CREATORS -->
+<div class="page" id="page-creators">
+  <div class="page-header">
+    <div class="page-header-bg-text">CREATORS</div>
+    <h1>قائمة صناع المحتوى</h1>
+    <div class="breadcrumb">
+      <span onclick="goHome()" style="cursor:pointer;color:var(--text-muted);">الرئيسية</span>
+      <span>›</span>
+      <span>قائمة صناع المحتوى</span>
+    </div>
+  </div>
+  <div class="creators-section">
+    <h2 class="creators-section-title">صناع المحتوى</h2>
+    <p class="coming-soon-badge">🎬 قريباً — سيتم إضافة صناع المحتوى قريباً</p>
+    <div class="creators-grid">
+      <div class="creator-card"><div class="creator-avatar">?</div><span class="creator-name">قريباً</span></div>
+      <div class="creator-card"><div class="creator-avatar">?</div><span class="creator-name">قريباً</span></div>
+      <div class="creator-card"><div class="creator-avatar">?</div><span class="creator-name">قريباً</span></div>
+      <div class="creator-card"><div class="creator-avatar">?</div><span class="creator-name">قريباً</span></div>
+      <div class="creator-card"><div class="creator-avatar">?</div><span class="creator-name">قريباً</span></div>
+      <div class="creator-card"><div class="creator-avatar">?</div><span class="creator-name">قريباً</span></div>
+      <div class="creator-card"><div class="creator-avatar">?</div><span class="creator-name">قريباً</span></div>
+      <div class="creator-card"><div class="creator-avatar">?</div><span class="creator-name">قريباً</span></div>
+      <div class="creator-card"><div class="creator-avatar">?</div><span class="creator-name">قريباً</span></div>
+      <div class="creator-card"><div class="creator-avatar">?</div><span class="creator-name">قريباً</span></div>
+    </div>
+  </div>
+  <footer>حقوق الطبع والنشر © 2025 <span>Respect CPW</span>. جميع الحقوق محفوظة.</footer>
+</div>
+
+<!-- PAGE: JOBS -->
+<div class="page" id="page-jobs">
+  <div class="page-header">
+    <div class="page-header-bg-text">JOBS</div>
+    <h1>وظائف ريسبكت</h1>
+    <div class="breadcrumb">
+      <span onclick="goHome()" style="cursor:pointer;color:var(--text-muted);">الرئيسية</span>
+      <span>›</span>
+      <span>وظائف ريسبكت</span>
+    </div>
+  </div>
+  <div class="jobs-section">
+    <h2 class="jobs-section-title">التقديم على الوظائف</h2>
+    <p class="jobs-section-sub">يمكنك طلب التقديم على الوظائف المتاحة داخل سيرفر فايف ام "ريسبكت" التي تكون بنظام المقابلات<br>أو المطلوب منك التقديم من هذا القسم</p>
+    <div class="jobs-cards">
+      <div class="job-card">
+        <div class="job-card-icon">🚔</div>
+        <p class="job-card-title">شرطة ريسبكت</p>
+        <p class="job-card-desc">تقديم منتسبين لشرطة ريسبكت للحفاظ على الأمن والنظام داخل المدينة وتطبيق القانون على جميع المواطنين.</p>
+        <button class="btn-closed" onclick="openClosedModal('شرطة ريسبكت')">🔒 مغلقة</button>
+      </div>
+      <div class="job-card">
+        <div class="job-card-icon">🚑</div>
+        <p class="job-card-title">إسعاف ريسبكت!</p>
+        <p class="job-card-desc">نبحث عن الأفراد المهتمين بإنقاذ أرواح الآخرين ومساعدة الناس في أصعب لحظاتهم داخل المدينة.</p>
+        <button class="btn-closed" onclick="openClosedModal('إسعاف ريسبكت')">🔒 مغلقة</button>
+      </div>
+      <div class="job-card">
+        <div class="job-card-icon">⚖️</div>
+        <p class="job-card-title">محامين ريسبكت</p>
+        <p class="job-card-desc">للتقديم على رخصة المحاماة من نقابة محامين ريسبكت، التي تتيح لك مزاولة مهنة المحاماة على أراضي دولة ريسبكت الموقرة وفقاً للأنظمة والشروط المعتمدة.</p>
+        <button class="btn-closed" onclick="openClosedModal('محامين ريسبكت')">🔒 مغلقة</button>
+      </div>
+    </div>
+  </div>
+  <footer>حقوق الطبع والنشر © 2025 <span>Respect CPW</span>. جميع الحقوق محفوظة.</footer>
+</div>
+
+<!-- CLOSED MODAL -->
+<div class="closed-modal" id="closedModal">
+  <div class="closed-box">
+    <div class="closed-icon">🔒</div>
+    <h3>التقديم مغلق حالياً</h3>
+    <p>عذراً، التقديم على وظيفة <strong id="closedJobName" style="color:white;"></strong> مغلق في الوقت الحالي.<br>تابع إعلانات السيرفر على Discord لمعرفة موعد فتح التقديم.</p>
+    <button class="btn-close-modal" onclick="closeClosedModal()">حسناً، فهمت</button>
+  </div>
+</div>
+
+<!-- PAGE 7: LAWS -->
+<div class="page" id="page-laws">
+  <div class="page-header">
+    <div class="page-header-bg-text">LAWS</div>
+    <h1>القوانين</h1>
+    <div class="breadcrumb">
+      <span onclick="goHome()" style="cursor:pointer;color:var(--text-muted);">الرئيسية</span>
+      <span>›</span>
+      <span>القوانين</span>
+    </div>
+  </div>
+  <div class="laws-wrap">
+    <p class="laws-subtitle">يجب أن يكون لديك اطلاع كامل على قوانين ريسبكت</p>
+
+    <!-- NLR -->
+    <div class="law-item" id="law1">
+      <div class="law-header" onclick="toggleLaw('law1')">
+        <div class="law-toggle">+</div>
+        <div class="law-header-right">
+          <div class="law-dot"></div>
+          <span class="law-title">قوانين الحياة الجديدة - NLR</span>
+        </div>
+      </div>
+      <div class="law-body">
+        <div class="law-body-inner">
+          <p class="law-desc">قانون الحياة الجديدة (New Life Rule) يعني أنه عند موت شخصيتك، تنسى كل الأحداث التي أدت إلى وفاتها.</p>
+          <ul>
+            <li>بعد الموت لا يحق لك العودة إلى نفس المنطقة التي مُت فيها لمدة 30 دقيقة.</li>
+            <li>لا يحق لك الانتقام من الشخص الذي قتلك باستخدام ذاكرة ما قبل الموت.</li>
+            <li>لا يحق لك الإفصاح عن معلومات حصلت عليها قبل وفاتك.</li>
+            <li>شخصيتك لا تتذكر أي شيء حدث خلال الـ 30 دقيقة قبل وفاتها.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- PowerGaming -->
+    <div class="law-item" id="law2">
+      <div class="law-header" onclick="toggleLaw('law2')">
+        <div class="law-toggle">+</div>
+        <div class="law-header-right">
+          <div class="law-dot"></div>
+          <span class="law-title">الباور جيمنج - PowerGaming</span>
+        </div>
+      </div>
+      <div class="law-body">
+        <div class="law-body-inner">
+          <p class="law-desc">PowerGaming هو استخدام قدرات أو أفعال غير واقعية تتجاوز حدود الشخصية البشرية الطبيعية.</p>
+          <ul>
+            <li>يُمنع القيام بأفعال مستحيلة بشرياً داخل الرول بلاي.</li>
+            <li>يُمنع إجبار لاعب آخر على قبول نتيجة أفعالك دون إعطائه فرصة للرد.</li>
+            <li>يُمنع تجاهل الإصابات أو التظاهر بعدم تأثرها بالأحداث.</li>
+            <li>يجب أن تكون كل أفعالك منطقية ومعقولة ضمن سياق القصة.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- NVL -->
+    <div class="law-item" id="law3">
+      <div class="law-header" onclick="toggleLaw('law3')">
+        <div class="law-toggle">+</div>
+        <div class="law-header-right">
+          <div class="law-dot"></div>
+          <span class="law-title">الخوف على الحياة - NVL</span>
+        </div>
+      </div>
+      <div class="law-body">
+        <div class="law-body-inner">
+          <p class="law-desc">قانون تقدير الحياة (Value Your Life) يعني أن شخصيتك يجب أن تتصرف وكأن حياتها ثمينة.</p>
+          <ul>
+            <li>عند توجيه سلاح نحوك من مسافة قريبة يجب الامتثال للأوامر.</li>
+            <li>لا يحق لك المقاومة إذا كانت حياتك في خطر واضح وحقيقي.</li>
+            <li>يجب أن يبدو الخوف والتردد واضحاً في تصرفاتك عند الخطر.</li>
+            <li>الإقدام على مواجهة عدة أشخاص مسلحين بمفردك يعتبر مخالفة.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metagaming -->
+    <div class="law-item" id="law4">
+      <div class="law-header" onclick="toggleLaw('law4')">
+        <div class="law-toggle">+</div>
+        <div class="law-header-right">
+          <div class="law-dot"></div>
+          <span class="law-title">الميتا جيمنج - Metagaming</span>
+        </div>
+      </div>
+      <div class="law-body">
+        <div class="law-body-inner">
+          <p class="law-desc">Metagaming هو استخدام معلومات حصل عليها اللاعب خارج نطاق الرول بلاي داخل اللعبة.</p>
+          <ul>
+            <li>يُمنع استخدام معلومات من الديسكورد أو الدردشة الخارجية داخل الرول بلاي.</li>
+            <li>يُمنع التعرف على لاعبين آخرين بناءً على معلومات خارج اللعبة.</li>
+            <li>يُمنع التنسيق عبر برامج خارجية لتنفيذ أحداث داخل اللعبة.</li>
+            <li>كل معلوماتك يجب أن تكون مكتسبة فقط من خلال تفاعلات الرول بلاي.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- RDM -->
+    <div class="law-item" id="law5">
+      <div class="law-header" onclick="toggleLaw('law5')">
+        <div class="law-toggle">+</div>
+        <div class="law-header-right">
+          <div class="law-dot"></div>
+          <span class="law-title">القتل العشوائي - RDM</span>
+        </div>
+      </div>
+      <div class="law-body">
+        <div class="law-body-inner">
+          <p class="law-desc">Random Deathmatch هو قتل شخصية أخرى دون سبب منطقي أو قصة مقنعة داخل الرول بلاي.</p>
+          <ul>
+            <li>يجب أن يكون لكل عملية قتل سبب واضح ومنطقي ضمن القصة.</li>
+            <li>لا يجوز القتل بسبب خلافات شخصية خارج الرول بلاي.</li>
+            <li>يجب وجود تفاعل رول بلاي مسبق قبل أي مواجهة مسلحة.</li>
+            <li>القتل التعسفي يُعرّضك للطرد الفوري من السيرفر.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- NWL -->
+    <div class="law-item" id="law6">
+      <div class="law-header" onclick="toggleLaw('law6')">
+        <div class="law-toggle">+</div>
+        <div class="law-header-right">
+          <div class="law-dot"></div>
+          <span class="law-title">قانون تقدير الحياة - NWL</span>
+        </div>
+      </div>
+      <div class="law-body">
+        <div class="law-body-inner">
+          <p class="law-desc">No Wasting Lives — يُمنع هدر أرواح الشخصيات بدون قصة واضحة أو هدف من الرول بلاي.</p>
+          <ul>
+            <li>كل موت يجب أن يكون له أثر حقيقي على قصة الشخصية.</li>
+            <li>يُمنع التضحية بالشخصية لأسباب تافهة أو لمجرد التسلية.</li>
+            <li>يجب احترام خط الحياة والموت في الرول بلاي بجدية تامة.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- General -->
+    <div class="law-item" id="law7">
+      <div class="law-header" onclick="toggleLaw('law7')">
+        <div class="law-toggle">+</div>
+        <div class="law-header-right">
+          <div class="law-dot"></div>
+          <span class="law-title">القوانين العامة</span>
+        </div>
+      </div>
+      <div class="law-body">
+        <div class="law-body-inner">
+          <ul>
+            <li>الاحترام المتبادل بين جميع اللاعبين داخل وخارج اللعبة.</li>
+            <li>يُمنع التحرش أو الإزعاج المتعمد لأي لاعب.</li>
+            <li>يُمنع استخدام الألفاظ النابية أو العنصرية بأي شكل.</li>
+            <li>يُمنع التلاعب بالعملة أو الاقتصاد داخل اللعبة.</li>
+            <li>يجب اتباع تعليمات الإدارة والمشرفين في جميع الأوقات.</li>
+            <li>يُمنع نشر محتوى اللعبة خارجياً دون إذن مسبق من الإدارة.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Warrants -->
+    <div class="law-item" id="law8">
+      <div class="law-header" onclick="toggleLaw('law8')">
+        <div class="law-toggle">+</div>
+        <div class="law-header-right">
+          <div class="law-dot"></div>
+          <span class="law-title">نظام الوورنتات</span>
+        </div>
+      </div>
+      <div class="law-body">
+        <div class="law-body-inner">
+          <p class="law-desc">نظام التحذيرات والعقوبات المتدرجة داخل السيرفر.</p>
+          <ul>
+            <li>الوورن الأول: تحذير رسمي مع شرح المخالفة.</li>
+            <li>الوورن الثاني: إيقاف مؤقت من اللعب لمدة 24 ساعة.</li>
+            <li>الوورن الثالث: إيقاف مؤقت لمدة 72 ساعة.</li>
+            <li>الوورن الرابع: حظر دائم من السيرفر.</li>
+            <li>بعض المخالفات الجسيمة قد تؤدي إلى الحظر الفوري.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Police -->
+    <div class="law-item" id="law9">
+      <div class="law-header" onclick="toggleLaw('law9')">
+        <div class="law-toggle">+</div>
+        <div class="law-header-right">
+          <div class="law-dot"></div>
+          <span class="law-title">قوانين الشرطة</span>
+        </div>
+      </div>
+      <div class="law-body">
+        <div class="law-body-inner">
+          <ul>
+            <li>يجب على أفراد الشرطة الالتزام بالإجراءات القانونية داخل الرول بلاي.</li>
+            <li>يُمنع استغلال الصلاحيات لأغراض شخصية خارج نطاق المهمة.</li>
+            <li>يجب قراءة حقوق الموقوف قبل الاحتجاز في جميع الحالات.</li>
+            <li>يُمنع التعذيب أو الإساءة للموقوفين تحت أي ظرف.</li>
+            <li>يجب التنسيق مع الزملاء وعدم التصرف المنفرد في المواقف الحساسة.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMS -->
+    <div class="law-item" id="law10">
+      <div class="law-header" onclick="toggleLaw('law10')">
+        <div class="law-toggle">+</div>
+        <div class="law-header-right">
+          <div class="law-dot"></div>
+          <span class="law-title">قوانين الاسعاف</span>
+        </div>
+      </div>
+      <div class="law-body">
+        <div class="law-body-inner">
+          <ul>
+            <li>يجب على طاقم الإسعاف علاج الجميع بالتساوي بغض النظر عن هويتهم.</li>
+            <li>يُمنع رفض تقديم الإسعافات الأولية لأي شخصية محتاجة.</li>
+            <li>طاقم الإسعاف لا يُشارك في أي نزاعات مسلحة.</li>
+            <li>يجب الحفاظ على سرية المعلومات الطبية للمرضى.</li>
+            <li>يُمنع استغلال الصلاحيات الطبية لجمع المعلومات لصالح أطراف أخرى.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gangs -->
+    <div class="law-item" id="law11">
+      <div class="law-header" onclick="toggleLaw('law11')">
+        <div class="law-toggle">+</div>
+        <div class="law-header-right">
+          <div class="law-dot"></div>
+          <span class="law-title">قوانين العصابات</span>
+        </div>
+      </div>
+      <div class="law-body">
+        <div class="law-body-inner">
+          <ul>
+            <li>يجب أن يكون لكل عصابة قيادة واضحة وهيكل تنظيمي معتمد.</li>
+            <li>يُمنع الهجوم على عصابات أخرى دون سبب مبرر ضمن القصة.</li>
+            <li>يجب وجود قصة خلفية متماسكة لأي حرب بين عصابتين.</li>
+            <li>يُمنع الاستهداف العشوائي لأفراد الشرطة دون مبرر منطقي.</li>
+            <li>حجم العصابة يجب ألا يتجاوز الحد الأقصى المحدد من الإدارة.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Justice -->
+    <div class="law-item" id="law12">
+      <div class="law-header" onclick="toggleLaw('law12')">
+        <div class="law-toggle">+</div>
+        <div class="law-header-right">
+          <div class="law-dot"></div>
+          <span class="law-title">قوانين العدل</span>
+        </div>
+      </div>
+      <div class="law-body">
+        <div class="law-body-inner">
+          <ul>
+            <li>يتم البت في القضايا الكبرى عبر نظام المحاكم داخل اللعبة.</li>
+            <li>لكل متهم الحق في المحاكمة العادلة والتمثيل القانوني.</li>
+            <li>يُمنع تنفيذ أحكام بالإعدام دون المرور بالإجراءات القانونية.</li>
+            <li>الأدلة الرقمية والشهادات معتمدة في قضايا المحكمة.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Crime -->
+    <div class="law-item" id="law13">
+      <div class="law-header" onclick="toggleLaw('law13')">
+        <div class="law-toggle">+</div>
+        <div class="law-header-right">
+          <div class="law-dot"></div>
+          <span class="law-title">قوانين الاجرام</span>
+        </div>
+      </div>
+      <div class="law-body">
+        <div class="law-body-inner">
+          <ul>
+            <li>يجب أن يكون لكل جريمة قصة مقنعة وهدف واضح ضمن الرول بلاي.</li>
+            <li>يُمنع ارتكاب الجرائم في المناطق الآمنة أو بالقرب من المستشفيات.</li>
+            <li>عمليات السطو تتطلب حداً أدنى من التخطيط والتنسيق.</li>
+            <li>يُمنع استهداف اللاعبين الجدد أو حديثي الانضمام للسيرفر.</li>
+            <li>الجرائم الكبرى تتطلب موافقة مسبقة من الإدارة.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <footer>حقوق الطبع والنشر © 2025 <span>Respect CPW</span>. جميع الحقوق محفوظة.</footer>
+</div>
+
+<button class="cfg-btn" onclick="openCfg()">⚙ إعدادات</button>
+
+<div class="cfg-modal" id="cfgModal">
+  <div class="cfg-box">
+    <h3>⚙ إعدادات الإدارة</h3>
+    <label>رابط Discord Webhook</label>
+    <input type="text" id="cfgWh" placeholder="https://discord.com/api/webhooks/..."/>
+    <label>اسم السيرفر</label>
+    <input type="text" id="cfgName" placeholder="Respect RP"/>
+    <div class="cfg-actions">
+      <button class="btn-back" onclick="closeCfg()">إلغاء</button>
+      <button class="btn-accept" onclick="saveCfg()">حفظ ✓</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let cfg = { wh: localStorage.getItem('rp_wh')||'', name: localStorage.getItem('rp_name')||'Respect RP' };
+  function openCfg() { document.getElementById('cfgWh').value=cfg.wh; document.getElementById('cfgName').value=cfg.name; document.getElementById('cfgModal').classList.add('active'); }
+  function closeCfg() { document.getElementById('cfgModal').classList.remove('active'); }
+  function saveCfg() { cfg.wh=document.getElementById('cfgWh').value.trim(); cfg.name=document.getElementById('cfgName').value.trim()||'Respect RP'; localStorage.setItem('rp_wh',cfg.wh); localStorage.setItem('rp_name',cfg.name); closeCfg(); }
+
+  function setActiveNav(id) {
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    if(id) document.getElementById(id)&&document.getElementById(id).classList.add('active');
+  }
+
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    const el=document.getElementById(id); el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  let user = { username:'مستخدم', avatar:'https://cdn.discordapp.com/embed/avatars/0.png' };
+
+  function loginWithDiscord() {
+    const demos=[
+      {username:'ShadowKnight',avatar:'https://cdn.discordapp.com/embed/avatars/1.png'},
+      {username:'DarkWalker',avatar:'https://cdn.discordapp.com/embed/avatars/2.png'},
+      {username:'NightRider',avatar:'https://cdn.discordapp.com/embed/avatars/3.png'},
+    ];
+    user=demos[Math.floor(Math.random()*demos.length)];
+    document.getElementById('userAv').src=user.avatar;
+    document.getElementById('userNameWelcome').textContent='مرحباً، '+user.username;
+    document.getElementById('logoutBtn').style.display='flex';
+    showPage('page-welcome');
+  }
+
+  function logout() { user={username:'مستخدم',avatar:'https://cdn.discordapp.com/embed/avatars/0.png'}; document.getElementById('logoutBtn').style.display='none'; showPage('page-landing'); }
+  function goHome() { setActiveNav(null); showPage('page-landing'); }
+  function showInstructions() { showPage('page-instructions'); }
+  function showForm() { updateProg(); showPage('page-form'); }
+  function toggleServersMenu() {
+    document.getElementById('serversMenu').classList.toggle('open');
+  }
+  function openDiscord() {
+    window.open('https://discord.gg/AG4M4mkYqq', '_blank');
+    document.getElementById('serversMenu').classList.remove('open');
+  }
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    const wrap = document.getElementById('navServersWrap');
+    if(wrap && !wrap.contains(e.target)) document.getElementById('serversMenu').classList.remove('open');
+  });
+
+  function showCreators() { setActiveNav('navCreators'); showPage('page-creators'); }
+  function showLaws() { setActiveNav('navLaws'); showPage('page-laws'); }
+  function showJobs() { setActiveNav('navJobs'); showPage('page-jobs'); }
+  function openClosedModal(name) { document.getElementById('closedJobName').textContent = name; document.getElementById('closedModal').classList.add('active'); }
+  function closeClosedModal() { document.getElementById('closedModal').classList.remove('active'); }
+
+  // Toggle law accordion
+  function toggleLaw(id) {
+    const item = document.getElementById(id);
+    const isOpen = item.classList.contains('open');
+    // close all
+    document.querySelectorAll('.law-item').forEach(l => l.classList.remove('open'));
+    if(!isOpen) item.classList.add('open');
+  }
+
+  const allFields=['rName','rAge','cName','cBirth','cOrigin','cLang','cStory','cPos','cNeg','cExp','cReason','sc1','sc2','sc3','sc4'];
+
+  function updateProg() {
+    let filled=0;
+    allFields.forEach(id=>{const el=document.getElementById(id); if(el&&el.value.trim().length>0) filled++;});
+    const pct=Math.round((filled/allFields.length)*100);
+    document.getElementById('progFill').style.width=pct+'%';
+    document.getElementById('progPct').textContent=pct+'%';
+    document.getElementById('progText').textContent=filled===allFields.length?'✅ جميع الأسئلة مكتملة':`${filled} من ${allFields.length} سؤالاً مكتملاً`;
+  }
+
+  allFields.forEach(id=>{const el=document.getElementById(id); if(el) el.addEventListener('input',updateProg);});
+
+  function setErr(wid,has){document.getElementById(wid).classList.toggle('has-err',has);}
+
+  function validateAll() {
+    let ok=true;
+    const checks=[
+      {w:'wrap-rname',v:()=>document.getElementById('rName').value.trim(),c:v=>v.length>0},
+      {w:'wrap-rage',v:()=>parseInt(document.getElementById('rAge').value),c:v=>v>=18&&v<=99},
+      {w:'wrap-cname',v:()=>document.getElementById('cName').value.trim(),c:v=>v.length>0},
+      {w:'wrap-cbirth',v:()=>document.getElementById('cBirth').value,c:v=>v.length>0},
+      {w:'wrap-corigin',v:()=>document.getElementById('cOrigin').value.trim(),c:v=>v.length>0},
+      {w:'wrap-clang',v:()=>document.getElementById('cLang').value.trim(),c:v=>v.length>0},
+      {w:'wrap-cstory',v:()=>document.getElementById('cStory').value.trim(),c:v=>v.split('\n').filter(l=>l.trim()).length>=5},
+      {w:'wrap-cpos',v:()=>document.getElementById('cPos').value.trim(),c:v=>v.length>0},
+      {w:'wrap-cneg',v:()=>document.getElementById('cNeg').value.trim(),c:v=>v.length>0},
+      {w:'wrap-cexp',v:()=>document.getElementById('cExp').value.trim(),c:v=>v.length>0},
+      {w:'wrap-creason',v:()=>document.getElementById('cReason').value.trim(),c:v=>v.length>0},
+      {w:'wrap-sc1',v:()=>document.getElementById('sc1').value.trim(),c:v=>v.length>20},
+      {w:'wrap-sc2',v:()=>document.getElementById('sc2').value.trim(),c:v=>v.length>20},
+      {w:'wrap-sc3',v:()=>document.getElementById('sc3').value.trim(),c:v=>v.length>20},
+      {w:'wrap-sc4',v:()=>document.getElementById('sc4').value.trim(),c:v=>v.length>20},
+    ];
+    checks.forEach(c=>{const val=c.v();const pass=c.c(val);setErr(c.w,!pass);if(!pass)ok=false;});
+    if(!ok){const fe=document.querySelector('.has-err');if(fe)fe.scrollIntoView({behavior:'smooth',block:'center'});}
+    return ok;
+  }
+
+  async function submitApp() {
+    if(!validateAll()) return;
+    document.getElementById('loadingOv').classList.add('active');
+    const g=id=>document.getElementById(id).value;
+    const embed={embeds:[{
+      title:'📋 طلب انضمام جديد — '+cfg.name,
+      color:0x7B2FBE,
+      fields:[
+        {name:'👤 الاسم الحقيقي',value:g('rName'),inline:true},
+        {name:'🎂 العمر',value:g('rAge'),inline:true},
+        {name:'💬 Discord',value:user.username,inline:true},
+        {name:'🧍 اسم الشخصية',value:g('cName'),inline:true},
+        {name:'📅 تاريخ الميلاد',value:g('cBirth'),inline:true},
+        {name:'🌍 المنشئ',value:g('cOrigin'),inline:true},
+        {name:'🗣 اللغة',value:g('cLang'),inline:true},
+        {name:'📖 قصة الشخصية',value:g('cStory').substring(0,1024)},
+        {name:'✅ الإيجابيات',value:g('cPos').substring(0,500)},
+        {name:'❌ السلبيات',value:g('cNeg').substring(0,500)},
+        {name:'🎮 الخبرة السابقة',value:g('cExp').substring(0,500)},
+        {name:'🏙 سبب دخول المدينة',value:g('cReason').substring(0,500)},
+        {name:'🔫 موقف السطو المسلح',value:g('sc1').substring(0,500)},
+        {name:'🚕 موقف سائق التاكسي',value:g('sc2').substring(0,500)},
+        {name:'👮 موقف الاعتراف بالجريمة',value:g('sc3').substring(0,500)},
+        {name:'⚖️ موقف أمر القبض',value:g('sc4').substring(0,500)},
+      ],
+      footer:{text:'Respect RP — Application System'},
+      timestamp:new Date().toISOString()
+    }]};
+    try {
+      if(cfg.wh){await fetch(cfg.wh,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(embed)});}
+      else{await new Promise(r=>setTimeout(r,1500));}
+    }catch(e){console.error(e);}
+    document.getElementById('loadingOv').classList.remove('active');
+    showPage('page-success');
+  }
+</script>
+</body>
+</html>
